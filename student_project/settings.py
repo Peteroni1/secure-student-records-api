@@ -123,3 +123,47 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+# ==========================================
+# LAB 2: SECURITY & ENCRYPTION SETTINGS
+# ==========================================
+
+# 1. Force Django to use Argon2 for all new user passwords
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
+
+# 2. Setup local memory storage for tracking rate limits
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'security-rate-limit-cache',
+    }
+}
+
+# 3. Security Event Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'security_format': {
+            'format': '{levelname} | {asctime} | {module} -> {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'security_incidents.log',
+            'formatter': 'security_format',
+        },
+    },
+    'loggers': {
+        'records.security': {
+            'handlers': ['security_file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
